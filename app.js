@@ -15,11 +15,11 @@ btnSend.addEventListener('click', () => {
    }
 });
 
-// Función para recargar la página
-function recargarPagina() {
-    location.reload();
-  }
+// // Función para recargar la página
+// function recargarPagina() {
+//     location.reload();
+//   }
   
-  // Establecer un temporizador para recargar la página cada 5 segundos (5000 milisegundos)
-  setTimeout(recargarPagina, 5000);
+//   // Establecer un temporizador para recargar la página cada 5 segundos (5000 milisegundos)
+//   setTimeout(recargarPagina, 5000);
   
