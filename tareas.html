@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Estilos CSS - Aspecto neutro */
+
+        body {
+            background-color: #f4f4f4;
+            color: #333;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-success {
+            background-color: #6abf69;
+            border-color: #6abf69;
+        }
+
+        .btn-success:hover {
+            background-color: #5da05a;
+            border-color: #5da05a;
+        }
+
+        .btn-danger {
+            background-color: #f77d71;
+            border-color: #f77d71;
+        }
+
+        .btn-danger:hover {
+            background-color: #ee6d64;
+            border-color: #ee6d64;
+        }
+
+        .task-card {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .task-text {
+            margin-bottom: 5px;
+        }
+
+        .completed .task-card {
+            border-color: #6abf69;
+        }
+
+        .completed .task-date {
+            color: #6abf69;
+        }
+
+        .completed .btn-edit {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .col-md-6 {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="mb-4">Lista de Tareas</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="areaInput">Área:</label>
+                        <input type="text" class="form-control" id="areaInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="solicitudInput">Solicitud:</label>
+                        <input type="text" class="form-control" id="solicitudInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deQuienInput">De quién recibí la solicitud:</label>
+                        <input type="text" class="form-control" id="deQuienInput" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-add-task">Agregar Tarea</button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class="mb-4">Tareas Pendientes</h3>
+                <div id="pendingTasksList">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="mb-4">Tareas Terminadas</h3>
+                <div id="completedTasksList">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const taskForm = document.getElementById("taskForm");
+            const areaInput = document.getElementById("areaInput");
+            const solicitudInput = document.getElementById("solicitudInput");
+            const deQuienInput = document.getElementById("deQuienInput");
+            const pendingTasksList = document.getElementById("pendingTasksList");
+            const completedTasksList = document.getElementById("completedTasksList");
+
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            // Función para guardar las tareas en LocalStorage
+            function saveTasks() {
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+
+            // Función para renderizar las tareas en las listas
+            function renderTasks() {
+                pendingTasksList.innerHTML = "";
+                completedTasksList.innerHTML = "";
+
+                tasks.forEach((task, index) => {
+                    const taskCard = document.createElement("div");
+                    taskCard.className = `task-card ${task.completed ? 'completed' : ''}`;
+                    taskCard.innerHTML = `
+                        <div class="task-date">${formatDate(task.dateAdded)}</div>
+                        <div class="task-text"><b>Área:</b> ${task.area}</div>
+                        <div class="task-text"><b>Solicitud:</b> ${task.solicitud}</div>
+                        <div class="task-text"><b>De quién recibí la solicitud:</b> ${task.deQuien}</div>
+                        <div>
+                            ${!task.completed ? `<button class="btn btn-sm btn-success btn-edit" data-index="${index}">Terminado</button>` : ''}
+                            <button class="btn btn-sm btn-danger btn-delete" data-index="${index}">Eliminar</button>
+                        </div>
+                    `;
+
+                    if (task.completed) {
+                        taskCard.innerHTML += `<div class="task-date"><b>Fecha de terminación:</b> ${formatDate(task.dateCompleted)}</div>`;
+                        completedTasksList.appendChild(taskCard);
+                    } else {
+                        pendingTasksList.appendChild(taskCard);
+                    }
+                });
+
+                // Agregar eventos de clic a los botones
+                const deleteButtons = document.querySelectorAll(".btn-delete");
+                const completedButtons = document.querySelectorAll(".btn-edit");
+
+                deleteButtons.forEach((button) => {
+                    button.addEventListener("click", function () {
+                        const index = button.getAttribute("data-index");
+                        deleteTask(index);
+                    });
+                });
+
+                completedButtons.forEach((button) => {
+                    button.addEventListener("click", function () {
+                        const index = button.getAttribute("data-index");
+                        markAsCompleted(index);
+                    });
+                });
+            }
+
+            // Función para agregar una nueva tarea
+            function addTask(area, solicitud, deQuien) {
+                const newTask = {
+                    area: area,
+                    solicitud: solicitud,
+                    deQuien: deQuien,
+                    completed: false,
+                    dateAdded: new Date().getTime(),
+                    dateCompleted: null
+                };
+                tasks.push(newTask);
+                saveTasks();
+                renderTasks();
+            }
+
+            // Función para marcar una tarea como completada
+            function markAsCompleted(index) {
+                tasks[index].completed = true;
+                tasks[index].dateCompleted = new Date().getTime();
+                saveTasks();
+                renderTasks();
+            }
+
+            // Función para eliminar una tarea
+            function deleteTask(index) {
+                tasks.splice(index, 1);
+                saveTasks();
+                renderTasks();
+            }
+
+            // Función para formatear la fecha como "YYYY-MM-DD HH:mm"
+            function formatDate(timestamp) {
+                const date = new Date(timestamp);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            }
+
+            // Event listener para el formulario
+            taskForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const area = areaInput.value.trim();
+                const solicitud = solicitudInput.value.trim();
+                const deQuien = deQuienInput.value.trim();
+                if (area !== "" && solicitud !== "" && deQuien !== "") {
+                    addTask(area, solicitud, deQuien);
+                    areaInput.value = "";
+                    solicitudInput.value = "";
+                    deQuienInput.value = "";
+                }
+            });
+
+            // Initial rendering de las tareas
+            renderTasks();
+        });
+    </script>
+</body>
+
+</html>

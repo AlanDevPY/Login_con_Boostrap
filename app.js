@@ -8,7 +8,7 @@ btnSend.addEventListener('click', () => {
     let usuarioPassword = inputPassword.value;
 
    if(usuarioName === 'alanromet' && usuarioPassword === "1234"){
-    window.location.href ='https://www.google.com/'
+    window.location.href ='tareas.html'
    }else{
     inputName.value =''
     inputPassword.value =''

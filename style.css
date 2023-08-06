@@ -1,0 +1,7 @@
+body{
+    background: url(assets/fondo.jpg);
+    background-size: cover;
+}
+.backbody {
+    background-color: rgb(255,255,255,0.3)
+}
