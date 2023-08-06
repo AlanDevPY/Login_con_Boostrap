@@ -14,3 +14,12 @@ btnSend.addEventListener('click', () => {
     inputPassword.value =''
    }
 });
+
+// Función para recargar la página
+function recargarPagina() {
+    location.reload();
+  }
+  
+  // Establecer un temporizador para recargar la página cada 5 segundos (5000 milisegundos)
+  setTimeout(recargarPagina, 10000);
+  
