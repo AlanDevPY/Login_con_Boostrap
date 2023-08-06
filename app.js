@@ -21,5 +21,5 @@ function recargarPagina() {
   }
   
   // Establecer un temporizador para recargar la página cada 5 segundos (5000 milisegundos)
-  setTimeout(recargarPagina, 10000);
+  setTimeout(recargarPagina, 5000);
   
