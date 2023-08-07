@@ -2,7 +2,7 @@ function redirectionPage(){
     window.location.href = 'index.html'
 };
 
-setTimeout(redirectionPage,60000)
+setTimeout(redirectionPage,180000)
 
 const btnSesion = document.getElementById('btnSesion')
 
