@@ -15,6 +15,8 @@ btnSend.addEventListener('click', () => {
    }
 });
 
+//Holas
+
 // // Función para recargar la página
 // function recargarPagina() {
 //     location.reload();
